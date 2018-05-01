@@ -55,6 +55,8 @@ def main():
 
     """
     Randomly initialize clusters.
+
+    @variable clusters : clusters of journals
     """
 
     from random import randint
@@ -72,6 +74,11 @@ Standalone functions.
 """
 
 def validate_clusters(clusters):
+    """
+    Prevent cluster from being empty.
+
+    @param clusters : clusters to be validated
+    """
     return all(len(cluster) > 0 for cluster in clusters)
 
 """
