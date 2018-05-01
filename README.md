@@ -10,7 +10,7 @@ Require Python 3 and package lxml.
 
 The extractor is code/extractor.py.
 
-XML and DTD file are too large, so you'd better download it from http://dblp.org/xml/release/. This repository is based on [dblp-2018-04-01.xml](http://dblp.org/xml/release/dblp-2018-04-01.xml.gz) with its DTD file[dblp-2017-08-29.dtd](http://dblp.org/xml/release/dblp-2017-08-29.dtd).
+XML and DTD file are too large, so you'd better download it from http://dblp.org/xml/release/. This repository is based on [dblp-2018-04-01.xml](http://dblp.org/xml/release/dblp-2018-04-01.xml.gz) with its DTD file [dblp-2017-08-29.dtd](http://dblp.org/xml/release/dblp-2017-08-29.dtd).
 
 Sample extracted result file extract.csv is under data/.
 
