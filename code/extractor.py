@@ -34,6 +34,6 @@ for record in records:
   authors = list(filter((lambda x: x in authorities), record['authors']))
   if len(authors) > 0:
     out.write(record['journal'])
-    out.write(';')
+    out.write('$')
     out.write(';'.join(authors))
     out.write("\n")
