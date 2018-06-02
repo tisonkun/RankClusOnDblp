@@ -274,9 +274,78 @@ while mt < MT:
     print('Enter clustering')
 
     """
-    Calculate cluster possibility
+    Calculate cluster possibility, it is a bayesian formular
+
+                              journal_rank * p_k
+    Formular : pi_k_journal = ------------------
+                               sum(pi_k_journal)
     """
     pi_k_journal = defaultdict(list)
     for journal in journals:
         pi_k_journal[journal] = np.array([journal_rank[k][journal] * p_k[k] for k in range(K)])
         pi_k_journal[journal] /= np.sum(pi_k_journal[journal])
+
+    """
+    Calculate cluster center
+    """
+    center = { k : np.zeros(K) for k in range(K) }
+    for k in range(K):
+        for journal in clusters[k]:
+            center[k] += pi_k_journal[journal]
+        center[k] /= len(clusters[k])
+
+    """
+    Generate new clusters
+    """
+    clusters = defaultdict(list)
+    for journal in pi_k_journal:
+        similarity = {
+            i : np.sum(pi_k_journal[journal] * center[i]) / (
+                np.sqrt(np.sum(pi_k_journal[journal] * pi_k_journal[journal])) *
+                np.sqrt(np.sum(center[i] * center[i]))
+            )
+            for i in range(K)
+        }
+        clusters[max(similarity, key=(lambda x : similarity[x]))].append(journal)
+
+    """
+    If there is cluster has no element, unfortunately we meet a fatal error
+    the only thing we can do is restarting the whole iteration
+    """
+    if validate_clusters(clusters):
+        mt += 1
+    else:
+        print('fatal error, restarting the whole algorithm')
+        clusters = init_clusters()
+        mt = 0
+
+"""
+Generate result, do in parallel
+"""
+import heapq
+author_rank = manager.dict()
+journal_rank = manager.dict()
+
+pool = multiprocessing.Pool(processes=K)
+
+for i in range(K):    
+    pool.apply_async(authority_rank, (i, author_rank, journal_rank, clusters[i]))
+
+pool.close()
+pool.join()
+
+author_rank = dict(author_rank)
+journal_rank = dict(journal_rank)
+
+print('----------OUTPUT----------')
+for i in range(K):
+    print('Cluster %d' % (i))
+    print()
+    print('With Journals:')
+    for journal in heapq.nlargest(10, journal_rank[i].items(), lambda x: x[1]):
+        print('\t' + journal[0])
+    print()
+    print('With Authours:')
+    for author in heapq.nlargest(10, author_rank[i].items(), lambda x: x[1]):
+        print('\t' + author[0])
+    print()
