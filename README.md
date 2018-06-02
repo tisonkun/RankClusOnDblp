@@ -16,6 +16,14 @@ Sample extracted result file extract.csv is under data/.
 
 You can modify extractor.py and extract by your self.
 
+## Run the Algorithm
+
+```
+$ python3 code/rankclus.py data/extract.csv
+```
+
+This requires python3 lib numpy and so on.
+
 ## License
 
 See [LICENSE](LICENSE)
