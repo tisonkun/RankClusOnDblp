@@ -58,6 +58,40 @@ for record in records:
             author2author[line_authors[j]][line_authors[i]] += 1
 
 pprint('ack')
-print(journal2author)
-print(author2author)
-print(author2journal)
+
+"""
+Standalone functions.
+"""
+
+def init_clusters():
+    """
+    Randomly initialize clusters.
+
+    @return clusters : clusters of journals
+    """
+
+    from random import randint
+    from collections import defaultdict
+    clusters = defaultdict(list)
+    while True:
+        for journal in journals:
+            clusters[randint(0, K-1)].append(journal)
+        if validate_clusters(clusters): break
+    return clusters
+
+def validate_clusters(clusters):
+    """
+    Prevent cluster from being empty.
+
+    @param clusters : clusters to be validated
+    @return <bool>  : whether no empty cluster
+    """
+    return all(len(cluster) > 0 for cluster in clusters.values())
+
+"""
+End standalone functions.
+"""
+
+clusters = init_clusters()
+pprint(clusters)
+pprint('ack')
