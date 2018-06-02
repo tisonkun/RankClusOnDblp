@@ -96,7 +96,7 @@ def authority_rank(i, author_rank, journal_rank, cluster):
 
     @variable internal_author_rank      : final author_rank
     @variable internal_journal_rank     : final journal_rank
-    @variable internal_journal_rank_aux : journal_rank after step 1
+    @variable internal_journal_rank_aux : journal_rank in cluster
     """
 
     internal_author_rank = defaultdict(float)
@@ -215,3 +215,68 @@ while mt < MT:
     pool.join()
     author_rank = dict(author_rank)
     journal_rank = dict(journal_rank)
+
+    """
+    EM algorithm, inline
+    """
+
+    print('Enter EM')
+    """
+    Initialize p_k
+    """
+    p_k = np.zeros(K)
+    count_article = 0.0
+    for i in range(K):
+        for journal in clusters[i]:
+            for author in journal2author[journal]:
+                p_k[i] += journal2author[journal][author]
+                count_article += journal2author[journal][author]
+    p_k /= count_article
+    
+    """
+    Calculate
+
+    @value sum_journal2authour : sum(journal2author)
+    """
+    sum_journal2authour = 0.0
+    for journal in journal2author:
+        for author in journal2author[journal]:
+            sum_journal2authour += journal2author[journal][author]
+
+    """
+    EM loop
+
+    @value p_k_copy : last p_k(p(z=k))
+
+                    normalize(sum(journal2authour * p_k * authour_rank * journal_rank))
+    Formula : p_k = -------------------------------------------------------------------
+                                        sum_journal2authour
+    """
+    for _ in range(EMT):
+        p_k_copy = p_k.copy()
+        p_k = np.zeros(K)
+        for journal in journal2author:
+            for author in journal2author[journal]:
+                p_sum = sum([journal_rank[k][journal] * author_rank[k][author] * p_k_copy[k] for k in range(K)])
+                for k in range(K):
+                    p_k[k] += (
+                        journal2author[journal][author] * 
+                        journal_rank[k][journal] * 
+                        author_rank[k][author] * 
+                        p_k_copy[k] / p_sum
+                    )
+        p_k /= sum_journal2authour
+
+    """
+    Reclustering algorithm
+    """
+    
+    print('Enter clustering')
+
+    """
+    Calculate cluster possibility
+    """
+    pi_k_journal = defaultdict(list)
+    for journal in journals:
+        pi_k_journal[journal] = np.array([journal_rank[k][journal] * p_k[k] for k in range(K)])
+        pi_k_journal[journal] /= np.sum(pi_k_journal[journal])
