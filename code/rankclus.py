@@ -2,6 +2,7 @@ from collections import defaultdict
 from random import randint
 from csv import reader
 from sys import argv
+from time import time
 
 import numpy as np
 import multiprocessing
@@ -17,12 +18,13 @@ Configure for algorithm.
 """
 
 K = 15
-MT = 10
+MT = 30
 RT = 10
 EMT = 5
 alpha = 0.95
 
 csvfile = argv[1]
+time_init = time()
 
 """
 Compose network from extract.csv
@@ -43,8 +45,6 @@ for record in records:
     for author in record[1:]:
         authors.add(author)
 
-print('ack')
-
 author2author = { author : defaultdict(int) for author in authors }
 author2journal = { author : defaultdict(int) for author in authors }
 journal2author = { journal : defaultdict(int) for journal in journals }
@@ -59,7 +59,7 @@ for record in records:
             author2author[line_authors[i]][line_authors[j]] += 1
             author2author[line_authors[j]][line_authors[i]] += 1
 
-print('ack')
+print('Compose Network : %f' % (time() - time_init))
 
 """
 Standalone functions.
@@ -184,11 +184,9 @@ Main iterate configure
 @variable mt       : number of turns, bound to MT
 @variable clusters : clusters of journals
 """
+
 clusters = init_clusters()
-print('ack')
-
 manager = multiprocessing.Manager()
-
 mt = 0
 while mt < MT:
     print("Ranking Turn %d" % (mt))
@@ -204,6 +202,8 @@ while mt < MT:
     @variable author_rank  : rank of authors as vector
     @variable journal_rank : rank of journal as vector
     """
+
+    print("Enter Authourity Rank : %f" % (time() - time_init))
     author_rank = manager.dict()
     journal_rank = manager.dict()
     pool = multiprocessing.Pool(processes=K)
@@ -220,7 +220,8 @@ while mt < MT:
     EM algorithm, inline
     """
 
-    print('Enter EM')
+    print("Enter EM : %f" % (time() - time_init))
+
     """
     Initialize p_k
     """
@@ -234,9 +235,7 @@ while mt < MT:
     p_k /= count_article
     
     """
-    Calculate
-
-    @value sum_journal2authour : sum(journal2author)
+    Calculate sum_journal2authour = sum(journal2author)
     """
     sum_journal2authour = 0.0
     for journal in journal2author:
@@ -271,7 +270,7 @@ while mt < MT:
     Reclustering algorithm
     """
     
-    print('Enter clustering')
+    print("Enter Clustering : %f" % (time() - time_init))
 
     """
     Calculate cluster possibility, it is a bayesian formular
@@ -322,7 +321,7 @@ while mt < MT:
 """
 Generate result, do in parallel
 """
-import heapq
+print("---------- OUTPUT : %f ----------" % (time() - time_init))
 author_rank = manager.dict()
 journal_rank = manager.dict()
 
@@ -337,7 +336,7 @@ pool.join()
 author_rank = dict(author_rank)
 journal_rank = dict(journal_rank)
 
-print('----------OUTPUT----------')
+import heapq
 for i in range(K):
     print('Cluster %d' % (i))
     print()
