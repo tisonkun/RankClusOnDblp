@@ -203,7 +203,7 @@ while mt < MT:
     @variable journal_rank : rank of journal as vector
     """
 
-    print("Enter Authourity Rank : %f" % (time() - time_init))
+    print("Enter Authority Rank : %f" % (time() - time_init))
     author_rank = manager.dict()
     journal_rank = manager.dict()
     pool = multiprocessing.Pool(processes=K)
@@ -235,21 +235,21 @@ while mt < MT:
     p_k /= count_article
     
     """
-    Calculate sum_journal2authour = sum(journal2author)
+    Calculate sum_journal2author = sum(journal2author)
     """
-    sum_journal2authour = 0.0
+    sum_journal2author = 0.0
     for journal in journal2author:
         for author in journal2author[journal]:
-            sum_journal2authour += journal2author[journal][author]
+            sum_journal2author += journal2author[journal][author]
 
     """
     EM loop
 
     @value p_k_copy : last p_k(p(z=k))
 
-                    normalize(sum(journal2authour * p_k * authour_rank * journal_rank))
+                    normalize(sum(journal2author * p_k * author_rank * journal_rank))
     Formula : p_k = -------------------------------------------------------------------
-                                        sum_journal2authour
+                                        sum_journal2author
     """
     for _ in range(EMT):
         p_k_copy = p_k.copy()
@@ -264,7 +264,7 @@ while mt < MT:
                         author_rank[k][author] * 
                         p_k_copy[k] / p_sum
                     )
-        p_k /= sum_journal2authour
+        p_k /= sum_journal2author
 
     """
     Reclustering algorithm
@@ -344,7 +344,7 @@ for i in range(K):
     for journal in heapq.nlargest(10, journal_rank[i].items(), lambda x: x[1]):
         print('\t' + journal[0])
     print()
-    print('With Authours:')
+    print('With Authors:')
     for author in heapq.nlargest(10, author_rank[i].items(), lambda x: x[1]):
         print('\t' + author[0])
     print()
